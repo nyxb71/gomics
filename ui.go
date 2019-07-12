@@ -20,10 +20,12 @@ package main
 import (
 	"fmt"
 	"github.com/gotk3/gotk3/gdk"
+	"github.com/gotk3/gotk3/glib"
 	"github.com/gotk3/gotk3/gtk"
 	"log"
 	"reflect"
 	"runtime"
+	"time"
 )
 
 type GUI struct {
@@ -87,6 +89,7 @@ type GUI struct {
 	OneWideCheckButton             *gtk.CheckButton       `build:"OneWideCheckButton"`
 	SmartScrollCheckButton         *gtk.CheckButton       `build:"SmartScrollCheckButton"`
 	EmbeddedOrientationCheckButton *gtk.CheckButton       `build:"EmbeddedOrientationCheckButton"`
+	HideIdleCursorCheckButton      *gtk.CheckButton       `build:"HideIdleCursorCheckButton"`
 	AddBookmarkMenuItem            *gtk.MenuItem          `build:"AddBookmarkMenuItem"`
 	MenuBookmarks                  *gtk.Menu              `build:"MenuBookmarks"`
 	RecentChooserMenu              *gtk.RecentChooserMenu `build:"RecentChooserMenu"`
@@ -136,6 +139,41 @@ func (gui *GUI) LoadWidgets() (err error) {
 	}
 
 	return nil
+}
+
+func (gui *GUI) SetCursor(cursorName string) {
+	disp, _ := gdk.DisplayGetDefault()
+	win, _ := gui.Viewport.GetWindow()
+	newCursor, _ := gdk.CursorNewFromName(disp, cursorName)
+	win.SetCursor(newCursor)
+}
+
+func (gui *GUI) HideCursor() {
+	gui.SetCursor("none")
+	gui.State.CursorHidden = true
+}
+
+func (gui *GUI) ShowCursor() {
+	gui.SetCursor("")
+	gui.State.CursorHidden = false
+}
+
+func (gui *GUI) UpdateCursorVisibility() bool {
+	cursorShouldBeHidden := false
+
+	if gui.Config.HideIdleCursor && !gui.State.CursorForceShown {
+		cursorShouldBeHidden = time.Since(gui.State.CursorLastMoved).Seconds() > 1
+	}
+
+	if cursorShouldBeHidden && !gui.State.CursorHidden {
+		gui.HideCursor()
+	}
+
+	if !cursorShouldBeHidden && gui.State.CursorHidden {
+		gui.ShowCursor()
+	}
+
+	return true
 }
 
 func (gui *GUI) initUI() {
@@ -284,11 +322,13 @@ func (gui *GUI) initUI() {
 	})
 
 	gui.MenuItemPreferences.Connect("activate", func() {
+		gui.State.CursorForceShown = true
 		res := gtk.ResponseType(gui.PreferencesDialog.Run())
 		gui.PreferencesDialog.Hide()
 		if res == gtk.RESPONSE_ACCEPT {
 			// TODO save config
 		}
+		gui.State.CursorForceShown = false
 	})
 
 	gui.MenuItemGoTo.Connect("activate", func() {
@@ -336,6 +376,11 @@ func (gui *GUI) initUI() {
 		gui.SetEmbeddedOrientation(gui.EmbeddedOrientationCheckButton.GetActive())
 	})
 
+	gui.HideIdleCursorCheckButton.Connect("toggled", func() {
+		gui.SetHideIdleCursor(gui.HideIdleCursorCheckButton.GetActive())
+
+	})
+
 	gui.AddBookmarkMenuItem.Connect("activate", func() {
 		gui.AddBookmark()
 	})
@@ -362,6 +407,13 @@ func (gui *GUI) initUI() {
 		}
 		return true
 	})
+
+	gui.MainWindow.Connect("motion-notify-event", func(_ *gtk.Window, _ *gdk.Event) bool {
+		gui.State.CursorLastMoved = time.Now()
+		return true
+	})
+
+	glib.TimeoutAdd(250, gui.UpdateCursorVisibility)
 
 	gui.MainWindow.Connect("key-press-event", func(_ *gtk.Window, e *gdk.Event) {
 		ke := &gdk.EventKey{e}
@@ -471,6 +523,7 @@ func (gui *GUI) syncUI() {
 	gui.InterpolationComboBoxText.SetActive(gui.Config.Interpolation)
 	gui.OneWideCheckButton.SetActive(gui.Config.OneWide)
 	gui.EmbeddedOrientationCheckButton.SetActive(gui.Config.EmbeddedOrientation)
+	gui.HideIdleCursorCheckButton.SetActive(gui.Config.HideIdleCursor)
 }
 
 func (gui *GUI) RunGoToDialog() {
