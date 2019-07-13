@@ -149,12 +149,13 @@ func (gui *GUI) SetCursor(cursorName string) {
 }
 
 func (gui *GUI) HideCursor() {
-	gui.SetCursor("none")
+	// TODO Fix cursor not hiding
+	gui.SetCursor("")
 	gui.State.CursorHidden = true
 }
 
 func (gui *GUI) ShowCursor() {
-	gui.SetCursor("")
+	gui.SetCursor("default")
 	gui.State.CursorHidden = false
 }
 
@@ -210,24 +211,13 @@ func (gui *GUI) initUI() {
 	gui.syncUI()
 
 	// Connect signals
-	gui.MenuItemAbout.Connect("activate", func() {
-		gui.AboutDialog.Run()
-		gui.AboutDialog.Hide()
-	})
-
-	gui.MenuItemOpen.Connect("activate", func() {
-		res := gtk.ResponseType(gui.FileChooserDialogArchive.Run())
-		gui.FileChooserDialogArchive.Hide()
-		if res == gtk.RESPONSE_ACCEPT {
-			filename := gui.FileChooserDialogArchive.GetFilename()
-			gui.LoadArchive(filename)
-		}
-	})
+	gui.MenuItemAbout.Connect("activate", gui.About)
+	gui.MenuItemOpen.Connect("activate", gui.FileOpen)
 
 	gui.MenuItemSaveImage.Connect("activate", gui.SavePNG)
 
 	gui.MenuItemQuit.Connect("activate", gui.Quit)
-	gui.MenuItemClose.Connect("activate", gui.Close)
+	gui.MenuItemClose.Connect("activate", gui.FileClose)
 	gui.MainWindow.Connect("delete-event", gui.Quit) // destroy
 
 	var oldW, oldH int
@@ -241,99 +231,54 @@ func (gui *GUI) initUI() {
 		gui.ResizeEvent()
 	})
 
-	gui.ButtonNextPage.Connect("clicked", gui.NextPage)
-	gui.ButtonPreviousPage.Connect("clicked", gui.PreviousPage)
-	gui.ButtonFirstPage.Connect("clicked", gui.FirstPage)
-	gui.ButtonLastPage.Connect("clicked", gui.LastPage)
-	gui.ButtonNextArchive.Connect("clicked", gui.NextArchive)
-	gui.ButtonPreviousArchive.Connect("clicked", gui.PreviousArchive)
+	gui.ButtonNextPage.Connect("clicked", gui.PageNext)
+	gui.ButtonPreviousPage.Connect("clicked", gui.PagePrevious)
+	gui.ButtonFirstPage.Connect("clicked", gui.PageFirst)
+	gui.ButtonLastPage.Connect("clicked", gui.PageLast)
+	gui.ButtonNextArchive.Connect("clicked", gui.ArchiveNext)
+	gui.ButtonPreviousArchive.Connect("clicked", gui.ArchivePrevious)
 	gui.ButtonNextScene.Connect("clicked", gui.NextScene)
 	gui.ButtonPreviousScene.Connect("clicked", gui.PreviousScene)
-	gui.ButtonSkipForward.Connect("clicked", gui.SkipForward)
-	gui.ButtonSkipBackward.Connect("clicked", gui.SkipBackward)
+	gui.ButtonSkipForward.Connect("clicked", gui.PageSkipForward)
+	gui.ButtonSkipBackward.Connect("clicked", gui.PageSkipBack)
 
-	gui.MenuItemNextPage.Connect("activate", gui.NextPage)
-	gui.MenuItemPreviousPage.Connect("activate", gui.PreviousPage)
-	gui.MenuItemFirstPage.Connect("activate", gui.FirstPage)
-	gui.MenuItemLastPage.Connect("activate", gui.LastPage)
-	gui.MenuItemNextArchive.Connect("activate", gui.NextArchive)
-	gui.MenuItemPreviousArchive.Connect("activate", gui.PreviousArchive)
-	gui.MenuItemSkipForward.Connect("activate", gui.SkipForward)
-	gui.MenuItemSkipBackward.Connect("activate", gui.SkipBackward)
+	gui.MenuItemNextPage.Connect("activate", gui.PageNext)
+	gui.MenuItemPreviousPage.Connect("activate", gui.PagePrevious)
+	gui.MenuItemFirstPage.Connect("activate", gui.PageFirst)
+	gui.MenuItemLastPage.Connect("activate", gui.PageLast)
+	gui.MenuItemNextArchive.Connect("activate", gui.ArchiveNext)
+	gui.MenuItemPreviousArchive.Connect("activate", gui.ArchivePrevious)
+	gui.MenuItemSkipForward.Connect("activate", gui.PageSkipForward)
+	gui.MenuItemSkipBackward.Connect("activate", gui.PageSkipBack)
 
-	gui.MenuItemEnlarge.Connect("toggled", func() {
-		gui.SetEnlarge(gui.MenuItemEnlarge.GetActive())
-	})
+	gui.MenuItemEnlarge.Connect("toggled", gui.ImageEnlargeSmall)
+	gui.MenuItemShrink.Connect("toggled", gui.ImageShrinkLarge)
 
-	gui.MenuItemShrink.Connect("toggled", func() {
-		gui.SetShrink(gui.MenuItemShrink.GetActive())
-	})
+	gui.MenuItemFullscreen.Connect("toggled", gui.ModeFullscreen)
 
-	gui.MenuItemFullscreen.Connect("toggled", func() {
-		gui.SetFullscreen(gui.MenuItemFullscreen.GetActive())
-	})
+	gui.MenuItemSeamless.Connect("toggled", gui.ModeSeamless)
 
-	gui.MenuItemSeamless.Connect("toggled", func() {
-		gui.SetSeamless(gui.MenuItemSeamless.GetActive())
-	})
+	gui.MenuItemRandom.Connect("toggled", gui.OrderRandom)
 
-	gui.MenuItemRandom.Connect("toggled", func() {
-		gui.SetRandom(gui.MenuItemRandom.GetActive())
-	})
+	gui.MenuItemHFlip.Connect("toggled", gui.ImageFlipHorizontally)
 
-	gui.MenuItemHFlip.Connect("toggled", func() {
-		gui.SetHFlip(gui.MenuItemHFlip.GetActive())
-	})
+	gui.MenuItemVFlip.Connect("toggled", gui.ImageFlipVertically)
 
-	gui.MenuItemVFlip.Connect("toggled", func() {
-		gui.SetVFlip(gui.MenuItemVFlip.GetActive())
-	})
+	gui.MenuItemMangaMode.Connect("toggled", gui.ModeManga)
 
-	gui.MenuItemMangaMode.Connect("toggled", func() {
-		gui.SetMangaMode(gui.MenuItemMangaMode.GetActive())
-	})
+	gui.MenuItemDoublePage.Connect("toggled", gui.ModeDouble)
 
-	gui.MenuItemDoublePage.Connect("toggled", func() {
-		gui.SetDoublePage(gui.MenuItemDoublePage.GetActive())
-	})
+	gui.MenuItemOriginal.Connect("toggled", gui.ImageZoomOriginal)
 
-	gui.MenuItemOriginal.Connect("toggled", func() {
-		if gui.MenuItemOriginal.GetActive() {
-			gui.SetZoomMode("Original")
-		}
-	})
+	gui.MenuItemBestFit.Connect("toggled", gui.ImageZoomBestFit)
 
-	gui.MenuItemBestFit.Connect("toggled", func() {
-		if gui.MenuItemBestFit.GetActive() {
-			gui.SetZoomMode("BestFit")
-		}
-	})
+	gui.MenuItemFitToWidth.Connect("toggled", gui.ImageZoomFitWidth)
 
-	gui.MenuItemFitToWidth.Connect("toggled", func() {
-		if gui.MenuItemFitToWidth.GetActive() {
-			gui.SetZoomMode("FitToWidth")
-		}
-	})
+	gui.MenuItemFitToHeight.Connect("toggled", gui.ImageZoomFitHeight)
 
-	gui.MenuItemFitToHeight.Connect("toggled", func() {
-		if gui.MenuItemFitToHeight.GetActive() {
-			gui.SetZoomMode("FitToHeight")
-		}
-	})
+	gui.MenuItemPreferences.Connect("activate", gui.Preferences)
 
-	gui.MenuItemPreferences.Connect("activate", func() {
-		gui.State.CursorForceShown = true
-		res := gtk.ResponseType(gui.PreferencesDialog.Run())
-		gui.PreferencesDialog.Hide()
-		if res == gtk.RESPONSE_ACCEPT {
-			// TODO save config
-		}
-		gui.State.CursorForceShown = false
-	})
-
-	gui.MenuItemGoTo.Connect("activate", func() {
-		gui.RunGoToDialog()
-	})
+	gui.MenuItemGoTo.Connect("activate", gui.PageGoto)
 
 	gui.GoToSpinButton.Connect("value-changed", func() {
 		gui.GoToScrollbar.SetValue(gui.GoToSpinButton.GetValue())
@@ -399,11 +344,11 @@ func (gui *GUI) initUI() {
 		be := &gdk.EventButton{e}
 		switch be.Button() {
 		case 1:
-			gui.NextPage()
+			gui.PageNext()
 		case 3:
-			gui.PreviousPage()
+			gui.PagePrevious()
 		case 2:
-			gui.NextArchive()
+			gui.ArchiveNext()
 		}
 		return true
 	})
@@ -416,43 +361,40 @@ func (gui *GUI) initUI() {
 	glib.TimeoutAdd(250, gui.UpdateCursorVisibility)
 
 	gui.MainWindow.Connect("key-press-event", func(_ *gtk.Window, e *gdk.Event) {
-		ke := &gdk.EventKey{e}
+		kp := KeyPress{gdk.EventKey{e}}
 
-		shift := ke.State()&uint(gdk.GDK_SHIFT_MASK) != 0
-		ctrl := ke.State()&uint(gdk.GDK_CONTROL_MASK) != 0
-
-		switch ke.KeyVal() {
+		switch kp.Key() {
 		case gdk.KEY_Down:
-			if ctrl {
-				gui.NextArchive()
-			} else if shift {
+			if kp.Ctrl() {
+				gui.ArchiveNext()
+			} else if kp.Shift() {
 				gui.Scroll(0, 1)
 			} else {
-				gui.NextPage()
+				gui.PageNext()
 			}
 		case gdk.KEY_Up:
-			if ctrl {
-				gui.PreviousArchive()
-			} else if shift {
+			if kp.Ctrl() {
+				gui.ArchivePrevious()
+			} else if kp.Shift() {
 				gui.Scroll(0, -1)
 			} else {
-				gui.PreviousPage()
+				gui.PagePrevious()
 			}
 		case gdk.KEY_Right:
-			if ctrl {
+			if kp.Ctrl() {
 				gui.NextScene()
-			} else if shift {
+			} else if kp.Shift() {
 				gui.Scroll(1, 0)
 			} else {
-				gui.SkipForward()
+				gui.PageSkipForward()
 			}
 		case gdk.KEY_Left:
-			if ctrl {
+			if kp.Ctrl() {
 				gui.PreviousScene()
-			} else if shift {
+			} else if kp.Shift() {
 				gui.Scroll(-1, 0)
 			} else {
-				gui.SkipBackward()
+				gui.PageSkipBack()
 			}
 		}
 	})
@@ -468,7 +410,6 @@ func (gui *GUI) initUI() {
 	gui.State.DeltaW, gui.State.DeltaH = mw-va.GetWidth(), mh-va.GetHeight()
 
 	gui.SetFullscreen(gui.Config.Fullscreen)
-
 	gui.SetZoomMode(gui.Config.ZoomMode)
 	gui.SetDoublePage(gui.Config.DoublePage)
 	gui.SetMangaMode(gui.Config.MangaMode)

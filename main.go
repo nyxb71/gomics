@@ -33,6 +33,7 @@ import (
 	"time"
 )
 
+
 type State struct {
 	Archive            archive.Archive
 	ArchivePos         int
@@ -64,32 +65,6 @@ func (gui *GUI) ShowError(msg string) {
 	gui.SetStatus(msg)
 }
 
-func (gui *GUI) Close() {
-	if !gui.Loaded() {
-		return
-	}
-
-	gui.State.Archive.Close()
-
-	gui.State.Archive = nil
-	gui.State.ArchiveName = ""
-	gui.State.ArchivePath = ""
-	gui.State.ArchivePos = 0
-
-	gui.State.ImageHash = nil
-
-	gui.ImageL.Clear()
-	gui.ImageR.Clear()
-	gui.State.PixbufL = nil
-	gui.State.PixbufR = nil
-	gui.State.CursorLastMoved = time.Now()
-	gui.State.CursorHidden = false
-	gui.State.CursorForceShown = false
-	gui.SetStatus("")
-	gui.MainWindow.SetTitle("Gomics")
-	gc()
-}
-
 func (gui *GUI) LoadArchive(uri string) {
 	// TODO(utkan): non-local (http:// or https://) stuff someday?
 
@@ -113,7 +88,7 @@ func (gui *GUI) LoadArchive(uri string) {
 	}
 
 	if gui.Loaded() {
-		gui.Close()
+		gui.FileClose()
 	}
 
 	gui.State.ImageHash = make(map[int]imgdiff.Hash)
@@ -209,7 +184,7 @@ func (gui *GUI) Scroll(dx, dy float64) {
 	if dy > 0 {
 		if vval >= vupper {
 			if gui.Config.SmartScroll {
-				gui.NextPage()
+				gui.PageNext()
 			}
 		} else {
 			vadj.SetValue(clamp(vval+vdx, vlower, vupper))
@@ -218,7 +193,7 @@ func (gui *GUI) Scroll(dx, dy float64) {
 	} else if dy < 0 {
 		if vval <= vlower {
 			if gui.Config.SmartScroll {
-				gui.PreviousPage()
+				gui.PagePrevious()
 			}
 		} else {
 			vadj.SetValue(clamp(vval-vdx, vlower, vupper))
@@ -263,14 +238,6 @@ func (gui *GUI) scroll(int dx, int dy) {
 	vadj.SetValue(0)
 }
 */
-func (gui *GUI) Quit() {
-	gui.Config.WindowWidth, gui.Config.WindowHeight = gui.MainWindow.GetSize()
-
-	if err := gui.Config.Save(filepath.Join(gui.State.ConfigPath, ConfigFile)); err != nil {
-		log.Println(err)
-	}
-	gtk.MainQuit()
-}
 
 func (gui *GUI) Init() {
 	// Load configuration
