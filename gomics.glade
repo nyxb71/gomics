@@ -322,7 +322,7 @@ Author: Utkan Güngördü
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkMenuItem" id="MenuItemPreviousPage">
+                      <object class="GtkMenuItem" id="MenuItemPagePrevious">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Previous page</property>
@@ -333,7 +333,7 @@ Author: Utkan Güngördü
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="MenuItemNextPage">
+                      <object class="GtkMenuItem" id="MenuItemPageNext">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Next page</property>
@@ -350,7 +350,7 @@ Author: Utkan Güngördü
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="MenuItemSkipBackward">
+                      <object class="GtkMenuItem" id="MenuItemPageSkipBackward">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Skip backward</property>
@@ -358,7 +358,7 @@ Author: Utkan Güngördü
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="MenuItemSkipForward">
+                      <object class="GtkMenuItem" id="MenuItemPageSkipForward">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Skip forward</property>
@@ -372,7 +372,7 @@ Author: Utkan Güngördü
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="MenuItemFirstPage">
+                      <object class="GtkMenuItem" id="MenuItemPageFirst">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">First page</property>
@@ -382,7 +382,7 @@ Author: Utkan Güngördü
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="MenuItemLastPage">
+                      <object class="GtkMenuItem" id="MenuItemPageLast">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Last page</property>
@@ -398,7 +398,7 @@ Author: Utkan Güngördü
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="MenuItemPreviousArchive">
+                      <object class="GtkMenuItem" id="MenuItemArchivePrevious">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Previous archive</property>
@@ -408,7 +408,7 @@ Author: Utkan Güngördü
                       </object>
                     </child>
                     <child>
-                      <object class="GtkMenuItem" id="MenuItemNextArchive">
+                      <object class="GtkMenuItem" id="MenuItemArchiveNext">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Next archive</property>
@@ -500,7 +500,7 @@ Author: Utkan Güngördü
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkToolButton" id="ButtonFirstPage">
+              <object class="GtkToolButton" id="ButtonPageFirst">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">First page</property>
@@ -514,7 +514,7 @@ Author: Utkan Güngördü
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="ButtonSkipBackward">
+              <object class="GtkToolButton" id="ButtonPageSkipBackward">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Skip backwards</property>
@@ -528,7 +528,7 @@ Author: Utkan Güngördü
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="ButtonPreviousPage">
+              <object class="GtkToolButton" id="ButtonPagePrevious">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Previous page</property>
@@ -542,7 +542,7 @@ Author: Utkan Güngördü
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="ButtonNextPage">
+              <object class="GtkToolButton" id="ButtonPageNext">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Next page</property>
@@ -556,7 +556,7 @@ Author: Utkan Güngördü
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="ButtonSkipForward">
+              <object class="GtkToolButton" id="ButtonPageSkipForward">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Skip forwards</property>
@@ -570,7 +570,7 @@ Author: Utkan Güngördü
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="ButtonLastPage">
+              <object class="GtkToolButton" id="ButtonPageLast">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Last page</property>
@@ -594,7 +594,7 @@ Author: Utkan Güngördü
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="ButtonPreviousArchive">
+              <object class="GtkToolButton" id="ButtonArchivePrevious">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Previous archive</property>
@@ -608,7 +608,7 @@ Author: Utkan Güngördü
               </packing>
             </child>
             <child>
-              <object class="GtkToolButton" id="ButtonNextArchive">
+              <object class="GtkToolButton" id="ButtonArchiveNext">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="tooltip_text" translatable="yes">Next archive</property>

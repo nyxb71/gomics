@@ -46,24 +46,24 @@ type GUI struct {
 	MenuItemSaveImage              *gtk.MenuItem          `build:"MenuItemSaveImage"`
 	FileChooserDialogArchive       *gtk.FileChooserDialog `build:"FileChooserDialogArchive"`
 	Toolbar                        *gtk.Toolbar           `build:"Toolbar"`
-	ButtonNextPage                 *gtk.ToolButton        `build:"ButtonNextPage"`
-	ButtonPreviousPage             *gtk.ToolButton        `build:"ButtonPreviousPage"`
-	ButtonLastPage                 *gtk.ToolButton        `build:"ButtonLastPage"`
-	ButtonFirstPage                *gtk.ToolButton        `build:"ButtonFirstPage"`
-	ButtonNextArchive              *gtk.ToolButton        `build:"ButtonNextArchive"`
-	ButtonPreviousArchive          *gtk.ToolButton        `build:"ButtonPreviousArchive"`
+	ButtonPageNext                 *gtk.ToolButton        `build:"ButtonPageNext"`
+	ButtonPagePrevious             *gtk.ToolButton        `build:"ButtonPagePrevious"`
+	ButtonPageLast                 *gtk.ToolButton        `build:"ButtonPageLast"`
+	ButtonPageFirst                *gtk.ToolButton        `build:"ButtonPageFirst"`
+	ButtonArchiveNext              *gtk.ToolButton        `build:"ButtonArchiveNext"`
+	ButtonArchivePrevious          *gtk.ToolButton        `build:"ButtonArchivePrevious"`
 	ButtonNextScene                *gtk.ToolButton        `build:"ButtonNextScene"`
 	ButtonPreviousScene            *gtk.ToolButton        `build:"ButtonPreviousScene"`
-	ButtonSkipForward              *gtk.ToolButton        `build:"ButtonSkipForward"`
-	ButtonSkipBackward             *gtk.ToolButton        `build:"ButtonSkipBackward"`
-	MenuItemNextPage               *gtk.MenuItem          `build:"MenuItemNextPage"`
-	MenuItemPreviousPage           *gtk.MenuItem          `build:"MenuItemPreviousPage"`
-	MenuItemLastPage               *gtk.MenuItem          `build:"MenuItemLastPage"`
-	MenuItemFirstPage              *gtk.MenuItem          `build:"MenuItemFirstPage"`
-	MenuItemNextArchive            *gtk.MenuItem          `build:"MenuItemNextArchive"`
-	MenuItemPreviousArchive        *gtk.MenuItem          `build:"MenuItemPreviousArchive"`
-	MenuItemSkipForward            *gtk.MenuItem          `build:"MenuItemSkipForward"`
-	MenuItemSkipBackward           *gtk.MenuItem          `build:"MenuItemSkipBackward"`
+	ButtonPageSkipForward              *gtk.ToolButton        `build:"ButtonPageSkipForward"`
+	ButtonPageSkipBackward             *gtk.ToolButton        `build:"ButtonPageSkipBackward"`
+	MenuItemPageNext               *gtk.MenuItem          `build:"MenuItemPageNext"`
+	MenuItemPagePrevious           *gtk.MenuItem          `build:"MenuItemPagePrevious"`
+	MenuItemPageLast               *gtk.MenuItem          `build:"MenuItemPageLast"`
+	MenuItemPageFirst              *gtk.MenuItem          `build:"MenuItemPageFirst"`
+	MenuItemArchiveNext            *gtk.MenuItem          `build:"MenuItemArchiveNext"`
+	MenuItemArchivePrevious        *gtk.MenuItem          `build:"MenuItemArchivePrevious"`
+	MenuItemPageSkipForward            *gtk.MenuItem          `build:"MenuItemPageSkipForward"`
+	MenuItemPageSkipBackward           *gtk.MenuItem          `build:"MenuItemPageSkipBackward"`
 	MenuItemEnlarge                *gtk.CheckMenuItem     `build:"MenuItemEnlarge"`
 	MenuItemShrink                 *gtk.CheckMenuItem     `build:"MenuItemShrink"`
 	MenuItemFullscreen             *gtk.CheckMenuItem     `build:"MenuItemFullscreen"`
@@ -234,26 +234,12 @@ func (gui *GUI) initUI() {
 	gui.syncUI()
 
 	// Connect signals
-	gui.MenuItemAbout.Connect("activate", func() {
-		gui.State.CursorForceShown = true
-		gui.AboutDialog.Run()
-		gui.AboutDialog.Hide()
-		gui.State.CursorForceShown = false
-	})
+	gui.MenuItemAbout.Connect("activate", gui.About)
 
-	gui.MenuItemOpen.Connect("activate", func() {
-		res := gtk.ResponseType(gui.FileChooserDialogArchive.Run())
-		gui.FileChooserDialogArchive.Hide()
-		if res == gtk.RESPONSE_ACCEPT {
-			filename := gui.FileChooserDialogArchive.GetFilename()
-			gui.LoadArchive(filename)
-		}
-	})
-
-	gui.MenuItemSaveImage.Connect("activate", gui.SavePNG)
-
+	gui.MenuItemOpen.Connect("activate", gui.FileOpen)
+	gui.MenuItemClose.Connect("activate", gui.FileClose)
+	gui.MenuItemSaveImage.Connect("activate", gui.FileSaveImage)
 	gui.MenuItemQuit.Connect("activate", gui.Quit)
-	gui.MenuItemClose.Connect("activate", gui.Close)
 	gui.MainWindow.Connect("delete-event", gui.Quit) // destroy
 
 	var oldW, oldH int
@@ -267,25 +253,25 @@ func (gui *GUI) initUI() {
 		gui.ResizeEvent()
 	})
 
-	gui.ButtonNextPage.Connect("clicked", gui.NextPage)
-	gui.ButtonPreviousPage.Connect("clicked", gui.PreviousPage)
-	gui.ButtonFirstPage.Connect("clicked", gui.FirstPage)
-	gui.ButtonLastPage.Connect("clicked", gui.LastPage)
-	gui.ButtonNextArchive.Connect("clicked", gui.NextArchive)
-	gui.ButtonPreviousArchive.Connect("clicked", gui.PreviousArchive)
+	gui.ButtonPageNext.Connect("clicked", gui.PageNext)
+	gui.ButtonPagePrevious.Connect("clicked", gui.PagePrevious)
+	gui.ButtonPageFirst.Connect("clicked", gui.PageFirst)
+	gui.ButtonPageLast.Connect("clicked", gui.PageLast)
+	gui.ButtonArchiveNext.Connect("clicked", gui.ArchiveNext)
+	gui.ButtonArchivePrevious.Connect("clicked", gui.ArchivePrevious)
 	gui.ButtonNextScene.Connect("clicked", gui.NextScene)
 	gui.ButtonPreviousScene.Connect("clicked", gui.PreviousScene)
-	gui.ButtonSkipForward.Connect("clicked", gui.SkipForward)
-	gui.ButtonSkipBackward.Connect("clicked", gui.SkipBackward)
+	gui.ButtonPageSkipForward.Connect("clicked", gui.PageSkipForward)
+	gui.ButtonPageSkipBackward.Connect("clicked", gui.PageSkipBackward)
 
-	gui.MenuItemNextPage.Connect("activate", gui.NextPage)
-	gui.MenuItemPreviousPage.Connect("activate", gui.PreviousPage)
-	gui.MenuItemFirstPage.Connect("activate", gui.FirstPage)
-	gui.MenuItemLastPage.Connect("activate", gui.LastPage)
-	gui.MenuItemNextArchive.Connect("activate", gui.NextArchive)
-	gui.MenuItemPreviousArchive.Connect("activate", gui.PreviousArchive)
-	gui.MenuItemSkipForward.Connect("activate", gui.SkipForward)
-	gui.MenuItemSkipBackward.Connect("activate", gui.SkipBackward)
+	gui.MenuItemPageNext.Connect("activate", gui.PageNext)
+	gui.MenuItemPagePrevious.Connect("activate", gui.PagePrevious)
+	gui.MenuItemPageFirst.Connect("activate", gui.PageFirst)
+	gui.MenuItemPageLast.Connect("activate", gui.PageLast)
+	gui.MenuItemArchiveNext.Connect("activate", gui.ArchiveNext)
+	gui.MenuItemArchivePrevious.Connect("activate", gui.ArchivePrevious)
+	gui.MenuItemPageSkipForward.Connect("activate", gui.PageSkipForward)
+	gui.MenuItemPageSkipBackward.Connect("activate", gui.PageSkipBackward)
 
 	gui.MenuItemEnlarge.Connect("toggled", func() {
 		gui.SetEnlarge(gui.MenuItemEnlarge.GetActive())
@@ -425,11 +411,11 @@ func (gui *GUI) initUI() {
 		be := &gdk.EventButton{e}
 		switch be.Button() {
 		case 1:
-			gui.NextPage()
+			gui.PageNext()
 		case 3:
-			gui.PreviousPage()
+			gui.PagePrevious()
 		case 2:
-			gui.NextArchive()
+			gui.ArchiveNext()
 		}
 		return true
 	})
@@ -450,19 +436,19 @@ func (gui *GUI) initUI() {
 		switch ke.KeyVal() {
 		case gdk.KEY_Down:
 			if ctrl {
-				gui.NextArchive()
+				gui.ArchiveNext()
 			} else if shift {
 				gui.Scroll(0, 1)
 			} else {
-				gui.NextPage()
+				gui.PageNext()
 			}
 		case gdk.KEY_Up:
 			if ctrl {
-				gui.PreviousArchive()
+				gui.ArchivePrevious()
 			} else if shift {
 				gui.Scroll(0, -1)
 			} else {
-				gui.PreviousPage()
+				gui.PagePrevious()
 			}
 		case gdk.KEY_Right:
 			if ctrl {
@@ -470,7 +456,7 @@ func (gui *GUI) initUI() {
 			} else if shift {
 				gui.Scroll(1, 0)
 			} else {
-				gui.SkipForward()
+				gui.PageSkipForward()
 			}
 		case gdk.KEY_Left:
 			if ctrl {
@@ -478,7 +464,7 @@ func (gui *GUI) initUI() {
 			} else if shift {
 				gui.Scroll(-1, 0)
 			} else {
-				gui.SkipBackward()
+				gui.PageSkipBackward()
 			}
 		}
 	})

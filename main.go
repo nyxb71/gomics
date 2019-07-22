@@ -209,7 +209,7 @@ func (gui *GUI) Scroll(dx, dy float64) {
 	if dy > 0 {
 		if vval >= vupper {
 			if gui.Config.SmartScroll {
-				gui.NextPage()
+				gui.PageNext()
 			}
 		} else {
 			vadj.SetValue(clamp(vval+vdx, vlower, vupper))
@@ -218,7 +218,7 @@ func (gui *GUI) Scroll(dx, dy float64) {
 	} else if dy < 0 {
 		if vval <= vlower {
 			if gui.Config.SmartScroll {
-				gui.PreviousPage()
+				gui.PagePrevious()
 			}
 		} else {
 			vadj.SetValue(clamp(vval-vdx, vlower, vupper))
@@ -263,14 +263,6 @@ func (gui *GUI) scroll(int dx, int dy) {
 	vadj.SetValue(0)
 }
 */
-func (gui *GUI) Quit() {
-	gui.Config.WindowWidth, gui.Config.WindowHeight = gui.MainWindow.GetSize()
-
-	if err := gui.Config.Save(filepath.Join(gui.State.ConfigPath, ConfigFile)); err != nil {
-		log.Println(err)
-	}
-	gtk.MainQuit()
-}
 
 func (gui *GUI) Init() {
 	// Load configuration

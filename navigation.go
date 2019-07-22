@@ -41,82 +41,6 @@ func (gui *GUI) RandomPage() {
 	gui.SetPage(rand.Int() % gui.State.Archive.Len())
 }
 
-func (gui *GUI) PreviousPage() {
-	if !gui.Loaded() {
-		if gui.Config.Seamless {
-			gui.PreviousArchive()
-		}
-		return
-	}
-
-	if gui.Config.Random {
-		gui.RandomPage()
-		return
-	}
-
-	n := 1
-	if gui.Config.DoublePage && gui.State.ArchivePos > 1 {
-		n = 2
-	}
-
-	if gui.Config.Seamless && gui.State.ArchivePos+1 <= n {
-		gui.PreviousArchive()
-		return
-	}
-
-	gui.SetPage(gui.State.ArchivePos - n)
-
-	if (gui.Config.DoublePage && gui.forceSinglePage()) && gui.State.Archive.Len()-gui.State.ArchivePos > 1 {
-		// FIXME
-		gui.NextPage()
-	}
-}
-
-func (gui *GUI) NextPage() {
-	if !gui.Loaded() {
-		if gui.Config.Seamless {
-			gui.NextArchive()
-		}
-		return
-	}
-
-	if gui.Config.Random {
-		gui.RandomPage()
-		return
-	}
-
-	n := 1
-	if gui.Config.DoublePage && gui.forceSinglePage() == false && gui.State.Archive.Len() > gui.State.ArchivePos+2 {
-		n = 2
-	}
-
-	if gui.Config.Seamless && gui.State.Archive.Len()-gui.State.ArchivePos <= n {
-		gui.NextArchive()
-		return
-	}
-
-	gui.SetPage(gui.State.ArchivePos + n)
-}
-
-func (gui *GUI) FirstPage() {
-	if !gui.Loaded() {
-		return
-	}
-
-	gui.SetPage(0)
-}
-
-func (gui *GUI) LastPage() {
-	if !gui.Loaded() {
-		return
-	}
-
-	if gui.Config.DoublePage && gui.State.Archive.Len() >= 2 {
-		gui.SetPage(gui.State.Archive.Len() - 2)
-	}
-	gui.SetPage(gui.State.Archive.Len() - 1)
-}
-
 func (gui *GUI) ImageHash(n int) (imgdiff.Hash, bool) {
 	if hash, ok := gui.State.ImageHash[n]; ok {
 		return hash, true
@@ -220,29 +144,6 @@ func (gui *GUI) PreviousScene() {
 			return
 		}
 	}
-}
-
-func (gui *GUI) NextArchive() bool {
-	newname, err := gui.archiveNameRel(1)
-	if err != nil {
-		//gui.ShowError(err.Error())
-		return false
-	}
-
-	gui.LoadArchive(newname)
-	return true
-}
-
-func (gui *GUI) PreviousArchive() bool {
-	newname, err := gui.archiveNameRel(-1)
-	if err != nil {
-		//gui.ShowError(err.Error())
-		return false
-	}
-
-	gui.LoadArchive(newname)
-	gui.LastPage()
-	return true
 }
 
 // Find out the index of current archive in the directory.
