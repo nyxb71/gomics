@@ -96,6 +96,7 @@ type GUI struct {
 	Config                         Config
 	State                          State
 	RecentManager                  *gtk.RecentManager
+	UserActions                    UserActions
 }
 
 // LoadWidgets() fills the GUI struct with widgets built from the
@@ -390,12 +391,13 @@ func (gui *GUI) initUI() {
 
 	gui.HideIdleCursorCheckButton.Connect("toggled", func() {
 		gui.SetHideIdleCursor(gui.HideIdleCursorCheckButton.GetActive())
-
 	})
 
 	gui.AddBookmarkMenuItem.Connect("activate", func() {
 		gui.AddBookmark()
 	})
+
+	gui.UserActions = MakeUserActions(gui)
 
 	gui.ScrolledWindow.SetEvents(gui.ScrolledWindow.GetEvents() | int(gdk.BUTTON_PRESS_MASK))
 
@@ -428,43 +430,40 @@ func (gui *GUI) initUI() {
 	glib.TimeoutAdd(250, gui.UpdateCursorVisibility)
 
 	gui.MainWindow.Connect("key-press-event", func(_ *gtk.Window, e *gdk.Event) {
-		ke := &gdk.EventKey{e}
+		keyChord := MakeKeyChord(&KeyPress{gdk.EventKey{e}})
 
-		shift := ke.State()&uint(gdk.GDK_SHIFT_MASK) != 0
-		ctrl := ke.State()&uint(gdk.GDK_CONTROL_MASK) != 0
-
-		switch ke.KeyVal() {
+		switch keyChord.Key {
 		case gdk.KEY_Down:
-			if ctrl {
-				gui.ArchiveNext()
-			} else if shift {
+			if keyChord.Ctrl {
+				gui.UserActions[ArchiveNext].Call()
+			} else if keyChord.Shift {
 				gui.Scroll(0, 1)
 			} else {
-				gui.PageNext()
+				gui.UserActions[PageNext].Call()
 			}
 		case gdk.KEY_Up:
-			if ctrl {
-				gui.ArchivePrevious()
-			} else if shift {
+			if keyChord.Ctrl {
+				gui.UserActions[ArchivePrevious].Call()
+			} else if keyChord.Shift {
 				gui.Scroll(0, -1)
 			} else {
-				gui.PagePrevious()
+				gui.UserActions[PagePrevious].Call()
 			}
 		case gdk.KEY_Right:
-			if ctrl {
+			if keyChord.Ctrl {
 				gui.NextScene()
-			} else if shift {
+			} else if keyChord.Shift {
 				gui.Scroll(1, 0)
 			} else {
-				gui.PageSkipForward()
+				gui.UserActions[PageSkipForward].Call()
 			}
 		case gdk.KEY_Left:
-			if ctrl {
+			if keyChord.Ctrl {
 				gui.PreviousScene()
-			} else if shift {
+			} else if keyChord.Shift {
 				gui.Scroll(-1, 0)
 			} else {
-				gui.PageSkipBackward()
+				gui.UserActions[PageSkipBackward].Call()
 			}
 		}
 	})

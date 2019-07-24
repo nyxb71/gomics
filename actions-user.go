@@ -8,67 +8,83 @@ import (
 	"time"
 )
 
-type UserAction struct {
+type UserActionBinding struct {
 	Keybind KeyChord
-	Action  func()
+	Call    func()
 }
 
-type UserActions struct {
-	FileOpen      UserAction
-	FileClose     UserAction
-	FileSaveImage UserAction
-	Quit          UserAction
+type UserAction int
 
-	Preferences UserAction
-	About       UserAction
+const (
+	Unknown UserAction = iota
 
-	ImageShrinkLarge      UserAction
-	ImageEnlargeSmall     UserAction
-	ImageZoomBestFit      UserAction
-	ImageZoomOriginal     UserAction
-	ImageZoomFitWidth     UserAction
-	ImageZoomFitHeight    UserAction
-	ImageFlipVertically   UserAction
-	ImageFlipHorizontally UserAction
+	FileOpen
+	FileClose
+	FileSaveImage
+	Quit
 
-	ModeFullscreen UserAction
-	ModeSeamless   UserAction
-	ModeManga      UserAction
-	ModeDouble     UserAction
+	Preferences
+	About
 
-	OrderRandom UserAction
+	ImageShrinkLarge
+	ImageEnlargeSmall
+	ImageZoomBestFit
+	ImageZoomOriginal
+	ImageZoomFitWidth
+	ImageZoomFitHeight
+	ImageFlipVertically
+	ImageFlipHorizontally
 
-	PageNext         UserAction
-	PagePrevious     UserAction
-	PageSkipForward  UserAction
-	PageSkipBackward UserAction
-	PageFirst        UserAction
-	PageLast         UserAction
-	PageGoto         UserAction
-	ArchiveNext      UserAction
-	ArchivePrevious  UserAction
+	ModeFullscreen
+	ModeSeamless
+	ModeManga
+	ModeDouble
 
-	BookmarkAdd UserAction
+	OrderRandom
+
+	PageNext
+	PagePrevious
+	PageSkipForward
+	PageSkipBackward
+	PageFirst
+	PageLast
+	PageGoto
+	ArchiveNext
+	ArchivePrevious
+
+	BookmarkAdd
+)
+
+type UserActions map[UserAction]UserActionBinding
+
+func (ua UserActions) Init(gui *GUI) {
+	if ua == nil {
+		log.Fatal("Cannot initialize nil UserActions map")
+	}
+
+	ua[FileOpen] = UserActionBinding{KeyChord{Key: gdk.KEY_o, Ctrl: true}, gui.FileOpen}
+	ua[FileClose] = UserActionBinding{KeyChord{Key: gdk.KEY_w, Ctrl: true}, gui.FileClose}
+	ua[FileSaveImage] = UserActionBinding{KeyChord{Key: gdk.KEY_s, Ctrl: true}, gui.FileSaveImage}
+	ua[Quit] = UserActionBinding{KeyChord{Key: gdk.KEY_q, Ctrl: true}, gui.Quit}
+	ua[Preferences] = UserActionBinding{KeyChord{Key: gdk.KEY_p, Ctrl: true}, gui.Quit}
+	ua[About] = UserActionBinding{KeyChord{Key: gdk.KEY_F1}, gui.About}
+	ua[PageNext] = UserActionBinding{KeyChord{Key: gdk.KEY_Down}, gui.PageNext}
+	ua[PagePrevious] = UserActionBinding{KeyChord{Key: gdk.KEY_Up}, gui.PagePrevious}
+	ua[PageSkipForward] = UserActionBinding{KeyChord{Key: gdk.KEY_Right}, gui.PageSkipForward}
+	ua[PageSkipBackward] = UserActionBinding{KeyChord{Key: gdk.KEY_Left}, gui.PageSkipBackward}
+	ua[PageFirst] = UserActionBinding{KeyChord{Key: gdk.KEY_Home}, gui.PageFirst}
+	ua[PageLast] = UserActionBinding{KeyChord{Key: gdk.KEY_End}, gui.PageLast}
+	ua[ArchiveNext] = UserActionBinding{KeyChord{Key: gdk.KEY_Page_Down, Ctrl: true}, gui.ArchiveNext}
+	ua[ArchivePrevious] = UserActionBinding{KeyChord{Key: gdk.KEY_Page_Up, Ctrl: true}, gui.ArchivePrevious}
 }
 
-func (ga *UserActions) Init(gui *GUI) {
-	ga.FileOpen = UserAction{KeyChord{Key: gdk.KEY_o, Ctrl: true}, gui.FileOpen}
-	ga.FileClose = UserAction{KeyChord{Key: gdk.KEY_w, Ctrl: true}, gui.FileClose}
-	ga.FileSaveImage = UserAction{KeyChord{Key: gdk.KEY_s, Ctrl: true}, gui.FileSaveImage}
-	ga.Quit = UserAction{KeyChord{Key: gdk.KEY_q, Ctrl: true}, gui.Quit}
-
-	ga.Preferences = UserAction{KeyChord{Key: gdk.KEY_p, Ctrl: true}, gui.Quit}
-	ga.About = UserAction{KeyChord{Key: gdk.KEY_F1}, gui.About}
-
-	ga.PageNext = UserAction{KeyChord{Key: gdk.KEY_Down}, gui.PageNext}
-	ga.PagePrevious = UserAction{KeyChord{Key: gdk.KEY_Up}, gui.PagePrevious}
-	ga.PageSkipForward = UserAction{KeyChord{Key: gdk.KEY_Right}, gui.PageSkipForward}
-	ga.PageSkipBackward = UserAction{KeyChord{Key: gdk.KEY_Left}, gui.PageSkipBackward}
-	ga.PageFirst = UserAction{KeyChord{Key: gdk.KEY_Home}, gui.PageFirst}
-	ga.PageLast = UserAction{KeyChord{Key: gdk.KEY_End}, gui.PageLast}
-	ga.ArchiveNext = UserAction{KeyChord{Key: gdk.KEY_Page_Down, Ctrl: true}, gui.ArchiveNext}
-	ga.ArchivePrevious = UserAction{KeyChord{Key: gdk.KEY_Page_Up, Ctrl: true}, gui.ArchivePrevious}
-
+func MakeUserActions(gui *GUI) UserActions {
+	ua := make(UserActions)
+	ua.Init(gui)
+	if ua == nil {
+		log.Fatal("nil UserActions map")
+	}
+	return ua
 }
 
 func (gui *GUI) FileOpen() {

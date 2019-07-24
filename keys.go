@@ -43,3 +43,11 @@ type KeyChord struct {
 	Ctrl  bool
 	Shift bool
 }
+
+func MakeKeyChord(kp *KeyPress) KeyChord {
+	return KeyChord{kp.Key(), kp.Alt(), kp.Ctrl(), kp.Shift()}
+}
+
+func (kp *KeyPress) KeyChord() KeyChord {
+	return MakeKeyChord(kp)
+}
