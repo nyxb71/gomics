@@ -238,8 +238,8 @@ Author: Utkan Güngördü
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Fullscreen</property>
                         <property name="use_underline">True</property>
-                        <accelerator key="f" signal="activate"/>
                         <accelerator key="F11" signal="activate"/>
+                        <accelerator key="f" signal="activate"/>
                       </object>
                     </child>
                     <child>
@@ -327,9 +327,9 @@ Author: Utkan Güngördü
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Previous page</property>
                         <property name="use_underline">True</property>
-                        <accelerator key="Page_Up" signal="activate"/>
-                        <accelerator key="space" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="KP_Page_Up" signal="activate"/>
+                        <accelerator key="space" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="Page_Up" signal="activate"/>
                       </object>
                     </child>
                     <child>
@@ -338,9 +338,9 @@ Author: Utkan Güngördü
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Next page</property>
                         <property name="use_underline">True</property>
-                        <accelerator key="Page_Down" signal="activate"/>
-                        <accelerator key="space" signal="activate"/>
                         <accelerator key="KP_Next" signal="activate"/>
+                        <accelerator key="space" signal="activate"/>
+                        <accelerator key="Page_Down" signal="activate"/>
                       </object>
                     </child>
                     <child>
@@ -377,8 +377,8 @@ Author: Utkan Güngördü
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">First page</property>
                         <property name="use_underline">True</property>
-                        <accelerator key="KP_Home" signal="activate"/>
                         <accelerator key="Home" signal="activate"/>
+                        <accelerator key="KP_Home" signal="activate"/>
                       </object>
                     </child>
                     <child>
@@ -387,8 +387,8 @@ Author: Utkan Güngördü
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Last page</property>
                         <property name="use_underline">True</property>
-                        <accelerator key="KP_End" signal="activate"/>
                         <accelerator key="End" signal="activate"/>
+                        <accelerator key="KP_End" signal="activate"/>
                       </object>
                     </child>
                     <child>
@@ -403,8 +403,8 @@ Author: Utkan Güngördü
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Previous archive</property>
                         <property name="use_underline">True</property>
-                        <accelerator key="KP_Page_Up" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="Page_Up" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="KP_Page_Up" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -413,8 +413,8 @@ Author: Utkan Güngördü
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Next archive</property>
                         <property name="use_underline">True</property>
-                        <accelerator key="KP_Next" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="Page_Down" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="KP_Next" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -782,9 +782,6 @@ Author: Utkan Güngördü
     <property name="type_hint">dialog</property>
     <property name="transient_for">MainWindow</property>
     <property name="filter">FileFilterArchive</property>
-    <child>
-      <placeholder/>
-    </child>
     <child internal-child="vbox">
       <object class="GtkBox" id="FileChooserDialogArchiveVBox">
         <property name="can_focus">False</property>
