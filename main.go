@@ -303,12 +303,12 @@ func (gui *GUI) SetFullscreen(fullscreen bool) {
 	if fullscreen {
 		gui.Statusbar.Hide()
 		gui.Toolbar.Hide()
-		//gui.Menubar.Hide() // BUG: menubar visible on fullscreen
+		gui.Menubar.Hide()
 		gui.MainWindow.Fullscreen()
 	} else {
 		gui.Statusbar.Show()
 		gui.Toolbar.Show()
-		//gui.Menubar.Show()
+		gui.Menubar.Show()
 		gui.MainWindow.Unfullscreen()
 	}
 	gui.MenuItemFullscreen.SetActive(fullscreen)

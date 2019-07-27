@@ -54,16 +54,16 @@ type GUI struct {
 	ButtonArchivePrevious          *gtk.ToolButton        `build:"ButtonArchivePrevious"`
 	ButtonNextScene                *gtk.ToolButton        `build:"ButtonNextScene"`
 	ButtonPreviousScene            *gtk.ToolButton        `build:"ButtonPreviousScene"`
-	ButtonPageSkipForward              *gtk.ToolButton        `build:"ButtonPageSkipForward"`
-	ButtonPageSkipBackward             *gtk.ToolButton        `build:"ButtonPageSkipBackward"`
+	ButtonPageSkipForward          *gtk.ToolButton        `build:"ButtonPageSkipForward"`
+	ButtonPageSkipBackward         *gtk.ToolButton        `build:"ButtonPageSkipBackward"`
 	MenuItemPageNext               *gtk.MenuItem          `build:"MenuItemPageNext"`
 	MenuItemPagePrevious           *gtk.MenuItem          `build:"MenuItemPagePrevious"`
 	MenuItemPageLast               *gtk.MenuItem          `build:"MenuItemPageLast"`
 	MenuItemPageFirst              *gtk.MenuItem          `build:"MenuItemPageFirst"`
 	MenuItemArchiveNext            *gtk.MenuItem          `build:"MenuItemArchiveNext"`
 	MenuItemArchivePrevious        *gtk.MenuItem          `build:"MenuItemArchivePrevious"`
-	MenuItemPageSkipForward            *gtk.MenuItem          `build:"MenuItemPageSkipForward"`
-	MenuItemPageSkipBackward           *gtk.MenuItem          `build:"MenuItemPageSkipBackward"`
+	MenuItemPageSkipForward        *gtk.MenuItem          `build:"MenuItemPageSkipForward"`
+	MenuItemPageSkipBackward       *gtk.MenuItem          `build:"MenuItemPageSkipBackward"`
 	MenuItemEnlarge                *gtk.CheckMenuItem     `build:"MenuItemEnlarge"`
 	MenuItemShrink                 *gtk.CheckMenuItem     `build:"MenuItemShrink"`
 	MenuItemFullscreen             *gtk.CheckMenuItem     `build:"MenuItemFullscreen"`
@@ -353,10 +353,13 @@ func (gui *GUI) initUI() {
 		//log.Println(w)
 		be := &gdk.EventButton{e}
 		switch be.Button() {
+		// left click
 		case 1:
 			gui.PageNext()
+		// right click
 		case 3:
 			gui.PagePrevious()
+		// middle click
 		case 2:
 			gui.ArchiveNext()
 		}
@@ -371,42 +374,15 @@ func (gui *GUI) initUI() {
 	glib.TimeoutAdd(250, gui.UpdateCursorVisibility)
 
 	gui.MainWindow.Connect("key-press-event", func(_ *gtk.Window, e *gdk.Event) {
-		keyChord := MakeKeyChord(&KeyPress{gdk.EventKey{e}})
+		action, err := gui.UserActions.GetUserActionByKeyChord(
+			MakeKeyChord(&KeyPress{gdk.EventKey{e}}))
 
-		switch keyChord.Key {
-		case gdk.KEY_Down:
-			if keyChord.Ctrl {
-				gui.UserActions[ArchiveNext].Call()
-			} else if keyChord.Shift {
-				gui.Scroll(0, 1)
-			} else {
-				gui.UserActions[PageNext].Call()
-			}
-		case gdk.KEY_Up:
-			if keyChord.Ctrl {
-				gui.UserActions[ArchivePrevious].Call()
-			} else if keyChord.Shift {
-				gui.Scroll(0, -1)
-			} else {
-				gui.UserActions[PagePrevious].Call()
-			}
-		case gdk.KEY_Right:
-			if keyChord.Ctrl {
-				gui.NextScene()
-			} else if keyChord.Shift {
-				gui.Scroll(1, 0)
-			} else {
-				gui.UserActions[PageSkipForward].Call()
-			}
-		case gdk.KEY_Left:
-			if keyChord.Ctrl {
-				gui.PreviousScene()
-			} else if keyChord.Shift {
-				gui.Scroll(-1, 0)
-			} else {
-				gui.UserActions[PageSkipBackward].Call()
-			}
+		if err != nil {
+			log.Print(err)
+			return
 		}
+
+		action.Call()
 	})
 
 	gui.RebuildBookmarksMenu()
